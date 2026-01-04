@@ -1,0 +1,158 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Legal-tech color palette */
+  --legal-background: oklch(0.98 0.002 240);
+  --legal-surface: oklch(1 0 0);
+  --legal-text: oklch(0.2 0.01 240);
+  --legal-muted: oklch(0.5 0.01 240);
+  --legal-primary: oklch(0.35 0.08 240);
+  --legal-accent: oklch(0.88 0.03 240);
+  --legal-accent-foreground: oklch(0.3 0.05 240);
+  --legal-border: oklch(0.9 0.005 240);
+  --legal-warning: oklch(0.65 0.15 85);
+
+  --background: var(--legal-background);
+  --foreground: var(--legal-text);
+  --card: var(--legal-surface);
+  --card-foreground: var(--legal-text);
+  --popover: var(--legal-surface);
+  --popover-foreground: var(--legal-text);
+  --primary: var(--legal-primary);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: var(--legal-accent);
+  --secondary-foreground: var(--legal-accent-foreground);
+  --muted: var(--legal-accent);
+  --muted-foreground: var(--legal-muted);
+  --accent: var(--legal-accent);
+  --accent-foreground: var(--legal-accent-foreground);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: var(--legal-border);
+  --input: var(--legal-border);
+  --ring: var(--legal-primary);
+  --chart-1: oklch(0.35 0.08 240);
+  --chart-2: oklch(0.5 0.08 200);
+  --chart-3: oklch(0.45 0.08 180);
+  --chart-4: oklch(0.4 0.08 220);
+  --chart-5: oklch(0.55 0.08 260);
+  --radius: 0.75rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: var(--legal-text);
+  --sidebar-primary: var(--legal-primary);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: var(--legal-accent);
+  --sidebar-accent-foreground: var(--legal-accent-foreground);
+  --sidebar-border: var(--legal-border);
+  --sidebar-ring: var(--legal-primary);
+}
+
+.dark {
+  /* Dark mode legal theme */
+  --legal-background: oklch(0.15 0.01 240);
+  --legal-surface: oklch(0.2 0.01 240);
+  --legal-text: oklch(0.95 0.005 240);
+  --legal-muted: oklch(0.6 0.01 240);
+  --legal-primary: oklch(0.55 0.12 240);
+  --legal-accent: oklch(0.3 0.03 240);
+  --legal-accent-foreground: oklch(0.9 0.01 240);
+  --legal-border: oklch(0.3 0.01 240);
+  --legal-warning: oklch(0.5 0.12 85);
+
+  --background: var(--legal-background);
+  --foreground: var(--legal-text);
+  --card: var(--legal-surface);
+  --card-foreground: var(--legal-text);
+  --popover: var(--legal-surface);
+  --popover-foreground: var(--legal-text);
+  --primary: var(--legal-primary);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: var(--legal-accent);
+  --secondary-foreground: var(--legal-accent-foreground);
+  --muted: var(--legal-accent);
+  --muted-foreground: var(--legal-muted);
+  --accent: var(--legal-accent);
+  --accent-foreground: var(--legal-accent-foreground);
+  --destructive: oklch(0.5 0.2 27.325);
+  --destructive-foreground: oklch(0.95 0.005 27.325);
+  --border: var(--legal-border);
+  --input: var(--legal-border);
+  --ring: var(--legal-primary);
+  --chart-1: oklch(0.55 0.12 240);
+  --chart-2: oklch(0.6 0.12 200);
+  --chart-3: oklch(0.5 0.12 180);
+  --chart-4: oklch(0.45 0.12 220);
+  --chart-5: oklch(0.65 0.12 260);
+  --sidebar: oklch(0.2 0.01 240);
+  --sidebar-foreground: var(--legal-text);
+  --sidebar-primary: var(--legal-primary);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: var(--legal-accent);
+  --sidebar-accent-foreground: var(--legal-accent-foreground);
+  --sidebar-border: var(--legal-border);
+  --sidebar-ring: var(--legal-primary);
+}
+
+@theme inline {
+  --font-sans: "Geist", "Geist Fallback";
+  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Legal-specific design tokens */
+  --color-legal-background: var(--legal-background);
+  --color-legal-surface: var(--legal-surface);
+  --color-legal-text: var(--legal-text);
+  --color-legal-muted: var(--legal-muted);
+  --color-legal-primary: var(--legal-primary);
+  --color-legal-accent: var(--legal-accent);
+  --color-legal-accent-foreground: var(--legal-accent-foreground);
+  --color-legal-border: var(--legal-border);
+  --color-legal-warning: var(--legal-warning);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

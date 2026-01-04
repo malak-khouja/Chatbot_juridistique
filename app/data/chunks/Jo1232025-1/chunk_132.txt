@@ -1,0 +1,20 @@
+Article premier - Sont homologués les procès-verbaux susvisés déterminant la consistance et la situation juridique des 
+immeubles relevant du domaine privé de l'Etat sis aux délégations de Sejnane, El Alia, Joumine, Menzel Jemil, Bizerte Sud 
+et Mateur du gouvernorat de Bizerte, indiqués aux plans annexés au présent décret et au tableau ci-après : 
+ 
+N° d'ordre Nom de l'immeuble Lieu Superficie en m2 N° T.P.D 
+1 Farch Bourahal 1 Secteur de Sejnane Délégation de Sejnane 129 102395 
+2 Farch Bourahal 2 Secteur de Sejnane Délégation de Sejnane 366 102394 
+3 El Kehna Secteur d’El Alia Sud Délégation d’El Alia 216 102397 
+4 Sidi El Bechir Secteur de Tehent Délégation de Joumine 125 102809 
+5 Sidi Bouchehid Secteur de Menzel Jemil Est Délégation de Menzel Jemil 173 102805 
+6 El Manejem 2 Secteur d’Essemmen Délégation de Joumine 72 104543 
+7 El Manejem 4 Secteur d’Essemmen Délégation de Joumine 90 104545 
+8 El Manejem 5 Secteur d’Essemmen Délégation de Joumine 86 104546 
+9 Cité El Jela 2 Secteur de Cité El Jela Délégation de Bizerte Sud 227 109551 
+10 Louata Secteur d’Ellouata Délégation de Bizerte Sud 495 109566 
+11 Ettalla 47 Secteur de Marnissa Délégation de Bizerte Sud 1025 109593 
+12 Ettalla 48 Secteur de Marnissa Délégation de Bizerte Sud 6568 109594 
+13 Ettalla 49 Secteur de Marnissa Délégation de Bizerte Sud 2853 109595 
+14 Ettalla 50 Secteur de Marnissa Délégation de Bizerte Sud 883 109596 
+15 Ettalla 52 Secteur de Marnissa Délégation de Bizerte Sud 325 109598
