@@ -49,9 +49,9 @@ export function ExampleQuestions({ onSelectQuestion }: ExampleQuestionsProps) {
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-legal-primary/10 transition-colors group-hover:bg-legal-primary/20 sm:h-10 sm:w-10">
                 <Icon className="h-4 w-4 text-legal-primary sm:h-5 sm:w-5" />
               </div>
-              <div className="flex-1 space-y-1 min-w-0">
-                <p className="text-xs font-medium text-legal-text sm:text-sm">{item.question}</p>
-                <p className="hidden text-xs text-legal-muted sm:block">{item.category}</p>
+             <div className="flex-1 space-y-1">
+                <p className="text-xs font-medium text-legal-text sm:text-sm break-words whitespace-normal">{item.question}</p>
+                <p className="hidden text-xs text-legal-muted sm:block truncate">{item.category}</p>
               </div>
             </Button>
           </Card>

@@ -4,14 +4,14 @@ from langchain_chroma import Chroma
 from langchain_ollama import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_neo4j import Neo4jGraph
-from app.config import NEO4J_URI as CFG_NEO4J_URI, NEO4J_USER as CFG_NEO4J_USER, NEO4J_PASSWORD as CFG_NEO4J_PASSWORD
+from app.config import NEO4J_URI as CFG_NEO4J_URI, NEO4J_USER as CFG_NEO4J_USER, NEO4J_PASSWORD as CFG_NEO4J_PASSWORD, EMBEDDING_MODEL, LLM_MODEL
 
 
 CHROMA_DIR = "app/data/chroma"
 
 # Chargement de la base vectorielle (Chroma)
 embeddings = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    model_name=EMBEDDING_MODEL
 )
 
 vectordb = Chroma(
@@ -39,11 +39,13 @@ except Exception as exc:
 
 # Modèle LLM (Ollama) avec configuration pour réponses complètes
 llm = OllamaLLM(
-    model="mistral",
+    model=LLM_MODEL,
     temperature=0.1,
-    num_predict=1000
+    num_predict=1000,
+    base_url="http://127.0.0.1:11434"
 )
-    
+
+
 # contexte STRUCTUREL depuis Neo4j
 def get_graph_context(question, limit=5):
     if graph is None:
@@ -147,7 +149,7 @@ def deduplicate_context(text: str) -> str:
     unique_lines = []
     for line in lines:
         # Normaliser pour comparaison (minuscules, espaces supprimés)
-        normalized = line.lower().strip()[:100]
+        normalized = line.lower().strip()[:250]
         if normalized not in seen and len(line.strip()) > 20:
             seen.add(normalized)
             unique_lines.append(line)
@@ -182,5 +184,3 @@ def format_answer(text: str) -> str:
         text = text.replace("\n\n\n", "\n\n")
     
     return text.strip()
-    return answer
-

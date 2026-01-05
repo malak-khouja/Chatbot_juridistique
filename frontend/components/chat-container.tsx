@@ -37,7 +37,35 @@ export function ChatContainer() {
       setIsDarkMode(true)
       document.documentElement.classList.add("dark")
     }
+    
+    // Charger les conversations sauvegardées
+    const savedConversations = localStorage.getItem("conversations")
+    if (savedConversations) {
+      try {
+        const parsed = JSON.parse(savedConversations)
+        const deserialized = deserializeConversations(parsed)
+        setConversations(deserialized)
+      } catch (error) {
+        console.error("Erreur lors du chargement des conversations:", error)
+      }
+    }
   }, [])
+
+  // Sauvegarder les conversations quand elles changent
+  useEffect(() => {
+    localStorage.setItem("conversations", JSON.stringify(conversations))
+  }, [conversations])
+
+  // Fonction pour convertir les strings en Date objects
+  const deserializeConversations = (data: any[]) => {
+    return data.map((conv) => ({
+      ...conv,
+      messages: conv.messages.map((msg: any) => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp),
+      })),
+    }))
+  }
 
   const toggleDarkMode = () => {
     setIsDarkMode((prev) => {
@@ -222,6 +250,12 @@ export function ChatContainer() {
               </p>
             </Card>
 
+            {messages.length > 0 && (
+              <div className="mb-4 flex-1 overflow-hidden sm:mb-6">
+                <MessageList messages={messages} isLoading={isLoading} />
+              </div>
+            )}
+
             {showExamples && !isLoading && (
               <div className="mb-4 sm:mb-6">
                 <h2 className="mb-3 text-center text-sm font-medium text-legal-muted sm:mb-4 sm:text-base">
@@ -230,12 +264,6 @@ export function ChatContainer() {
                     : "Choisissez une autre question"}
                 </h2>
                 <ExampleQuestions onSelectQuestion={sendMessage} />
-              </div>
-            )}
-
-            {messages.length > 0 && (
-              <div className="mb-4 flex-1 overflow-hidden sm:mb-6">
-                <MessageList messages={messages} isLoading={isLoading} />
               </div>
             )}
 

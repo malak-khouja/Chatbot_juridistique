@@ -58,9 +58,9 @@ export function ConversationHistory({
                 onClick={() => onSelectConversation(conversation.id)}
               >
                 <MessageSquare className="h-3.5 w-3.5 shrink-0 text-legal-primary sm:h-4 sm:w-4" />
-                <div className="flex-1 overflow-hidden min-w-0">
-                  <p className="truncate text-xs font-medium text-legal-text sm:text-sm">{conversation.title}</p>
-                  <p className="truncate text-xs text-legal-muted">{conversation.lastMessage}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-legal-text sm:text-sm break-words whitespace-normal">{conversation.title}</p>
+                  <p className="text-xs text-legal-muted break-words whitespace-normal line-clamp-2">{conversation.lastMessage}</p>
                 </div>
                 <Button
                   variant="ghost"
