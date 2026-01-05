@@ -1,0 +1,13 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Chroma / Vector DB
+app/data/chroma/
+data/chroma/
+*.bin
+*.sqlite3
+*.pickle
+
+# Node
+node_modules/
