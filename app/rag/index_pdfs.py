@@ -22,50 +22,76 @@ os.makedirs(CHUNKS_DIR, exist_ok=True)
 
 
 # Nettoyage simple du texte
-
 def clean_text(text: str) -> str:
     # 1. Supprimer retours à la ligne inutiles et espaces multiples
     text = re.sub(r"\n+", "\n", text)
     text = re.sub(r"[ \t]+", " ", text)
     
-    # 2. Supprimer points de remplissage ou traits
-    text = re.sub(r"[\.…]{3,}", "", text)
-    
-    # 3. Supprimer numéros de page simples
-    text = re.sub(r"\n\s*\d+\s*\n", "\n", text)
-    
-    # 4. Supprimer en-têtes éditoriaux répétitifs
-    headers = [
-        r"REPUBLIQUE TUNISIENNE",
-        r"Imprimerie Officielle de la République Tunisienne",
-        r"Publications de l’Imprimerie Officielle de la République Tunisienne"
-    ]
-    for h in headers:
-        text = re.sub(h, "", text, flags=re.IGNORECASE)
-    
-    # 5. Supprimer le sommaire (table des matières)
+    # 2. Supprimer le sommaire (table des matières) AVANT les points
     lines = text.splitlines()
     cleaned_lines = []
-    in_toc = False
+    in_toc = False  # Commence par inclure par défaut
+    
     for line in lines:
         l = line.strip()
+        
         # Début sommaire
         if re.match(r"(Annexe|sommaire|table\s+des\s+mati[eè]res|sujet\s+articles\s+pages|^page$)", l, re.IGNORECASE):
             in_toc = True
             continue
+        
+        # Fin sommaire : détection par formules tunisiennes standards
+        if in_toc and re.search(r"(Au nom du peuple|La Chambre des Députés ayant adopté|Le Président de la République)", l, re.IGNORECASE):
+            in_toc = False
+            # N'inclure que si ce n'est pas juste la formule
+            if not re.fullmatch(r"^(Au nom du peuple|La Chambre des Députés ayant adopté|Le Président de la République[^.]*)$", l, re.IGNORECASE):
+                cleaned_lines.append(line)
+            continue
+        
+        # Si on est dans le sommaire, skip certaines lignes
         if in_toc:
-            # Ligne de type index : numéro seul, plage, points, majuscules
-            if re.fullmatch(r"\d+", l) or re.search(r"\d+\s*(à|-|et)\s*\d+", l):
+            # Ligne de type index : numéro seul
+            if re.fullmatch(r"\d+", l):
                 continue
+            # Plages de numéros
+            if re.search(r"\d+\s*(à|-|et)\s*\d+", l):
+                continue
+            # Points de remplissage (dotted leaders) - LÀ on les utilise pour détecter
             if re.search(r"\.{2,}|…{2,}", l):
                 continue
+            # Lignes tout en majuscules (titres de sommaire)
             if len(l) < 50 and re.match(r"^[A-ZÉÈÀÙÇ'\s\-]{3,}:?$", l):
                 continue
-            # Fin sommaire
+            # Si ce n'est pas une ligne à skipper, on sort du sommaire
             in_toc = False
-        cleaned_lines.append(line)
+        
+        # Ajouter la ligne au résultat
+        if not in_toc or not re.fullmatch(r"\d+", l):
+            cleaned_lines.append(line)
     
     text = "\n".join(cleaned_lines)
+    
+    # 3. Supprimer points de remplissage ou traits (APRÈS suppression sommaire)
+    text = re.sub(r"[\.…]{3,}", "", text)
+    
+    # 4. Supprimer numéros de page simples
+    # Amélioration : supprimer les numéros tout seuls sur une ligne
+    text = re.sub(r"\n\s*\d+\s*\n", "\n", text)
+    # Variantes avec tirets
+    text = re.sub(r"\n\s*[-–—]\s*\d+\s*[-–—]\s*\n", "\n", text)
+    # Lignes contenant UNIQUEMENT un numéro
+    lines = text.split("\n")
+    lines = [line for line in lines if not re.fullmatch(r"\s*\d+\s*", line)]
+    text = "\n".join(lines)
+    
+    # 5. Supprimer en-têtes éditoriaux répétitifs
+    headers = [
+        r"REPUBLIQUE TUNISIENNE",
+        r"Imprimerie Officielle de la République Tunisienne",
+        r"Publications de l'Imprimerie Officielle de la République Tunisienne"
+    ]
+    for h in headers:
+        text = re.sub(h, "", text, flags=re.IGNORECASE)
     
     # 6. Standardiser les articles : Article, Art., article → Article
     text = re.sub(r"\b(Art\.|article)\b", "Article", text, flags=re.IGNORECASE)
@@ -168,7 +194,6 @@ graph = Neo4jGraph(
 # Vider le graphe avant test
 graph.query("MATCH (n) DETACH DELETE n")
 
-
 # Regex pour extraire la structure
 
 ARTICLE_RE = re.compile(r"(Article\s+\d+)", re.IGNORECASE)
@@ -237,4 +262,3 @@ for pdf_folder in os.listdir(CHUNKS_DIR):
 
 # Construire le graphe
 build_graph_from_chunks(all_docs)
-print("Graphe créé dans Neo4j à partir des chunks")
