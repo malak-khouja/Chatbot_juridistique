@@ -11,7 +11,7 @@ interface ExampleQuestionsProps {
 const exampleQuestions = [
   {
     icon: Briefcase,
-    question: "Quels sont mes droits en cas de licenciement ?",
+    question: "Quelle est la durée maximale de la période d'essai?",
     category: "Droit du travail",
   },
   {

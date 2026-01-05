@@ -1,0 +1,60 @@
+{
+  "total_tests": 5,
+  "tests": [
+    {
+      "question": "Quelle est la durée maximale de la période d'essai?",
+      "category": "Droit du travail",
+      "response": "La période d'essai ne dépasse pas six mois (Article 6 - 3).",
+      "metrics": {
+        "latency_seconds": 20.26,
+        "relevance_score": 0.629,
+        "precision_score": 0.333
+      }
+    },
+    {
+      "question": "Comment rédiger un contrat de travail?",
+      "category": "Contrats",
+      "response": "Le contrat de travail peut être conclu pour une durée déterminée ou indéterminée pour un travail à temps partiel conformément aux dispositions du Code du Travail tunisien (Article 94-2 premier alinéa)...",
+      "metrics": {
+        "latency_seconds": 29.45,
+        "relevance_score": 0.652,
+        "precision_score": 0.0
+      }
+    },
+    {
+      "question": "Quelles sont les conditions essentielles d'un contrat?",
+      "category": "Contrats",
+      "response": "Les conditions essentielles d'un contrat, selon le contexte fourni, sont :\n1.\n\nSatisfaire aux conditions déterminées par la loi applicable au contrat ou par celle du lieu de sa conclusion (Article 68)...",
+      "metrics": {
+        "latency_seconds": 71.06,
+        "relevance_score": 0.848,
+        "precision_score": 0.333
+      }
+    },
+    {
+      "question": "Quels sont les droits et obligations de l'employeur?",
+      "category": "Droit du travail",
+      "response": "Les droits de l'employeur comprennent la possibilité d'engager des salariés à durée déterminée ou indéfinie, ainsi que les obligations liées aux contrats conclus.\n\nLes salariés recrutés selon les cont...",
+      "metrics": {
+        "latency_seconds": 73.86,
+        "relevance_score": 0.839,
+        "precision_score": 0.333
+      }
+    },
+    {
+      "question": "Comment résoudre un contrat de travail?",
+      "category": "Droit du travail",
+      "response": "Le contrat de travail en Tunisie peut être conclu pour une durée déterminée ou indéterminée (Article 94-2 premier alinéa).\n\nIl n'y a pas de mention spécifique d'une procédure pour résoudre un contrat ...",
+      "metrics": {
+        "latency_seconds": 19.85,
+        "relevance_score": 0.645,
+        "precision_score": 0.0
+      }
+    }
+  ],
+  "averages": {
+    "latency": 42.9,
+    "relevance": 0.723,
+    "precision": 0.2
+  }
+}

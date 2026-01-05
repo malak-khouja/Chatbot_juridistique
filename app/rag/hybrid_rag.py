@@ -41,7 +41,7 @@ except Exception as exc:
 llm = OllamaLLM(
     model=LLM_MODEL,
     temperature=0.1,
-    num_predict=1000,
+    num_predict=500,
     base_url="http://127.0.0.1:11434"
 )
 
@@ -91,19 +91,20 @@ Tu es un assistant juridique spécialisé en droit tunisien.
 
 RÈGLES STRICTES :
 - Réponds UNIQUEMENT à partir des textes fournis ci-dessous.
-- Donne une réponse COMPLÈTE, STRUCTURÉE et SANS REDONDANCE.
-- Énumère TOUS les cas/points mentionnés dans les textes.
-- Cite les articles et lois exacts UNE SEULE FOIS (pas de répétitions).
+- Donne une réponse COURTE, PRÉCISE et DIRECTE (3-5 points maximum).
+- Cite UNIQUEMENT les articles les plus pertinents (pas tous les articles).
+- NE RÉPÈTE JAMAIS le même article ou point.
 - N'invente JAMAIS de loi ou d'article.
 - Ne cite JAMAIS le droit français ou d'autres pays.
 - Si l'information n'est pas présente, dis :
   "Cette information n'est pas disponible dans les documents fournis."
 
-FORMATAGE :
-- Saute une ligne après chaque phrase ou point important.
-- Utilise des listes à puces (-) pour énumérer les éléments UNIQUES.
-- Sépare les paragraphes par un saut de ligne.
-- ÉVITE LES RÉPÉTITIONS ET LES DOUBLONS.
+FORMATAGE OBLIGATOIRE :
+- Commence par une phrase de réponse directe
+- Utilise des tirets (-) pour lister les points clés (3-5 maximum)
+- Mentionne l'article entre parenthèses : (Article XXX)
+- Une ligne vide entre chaque point
+- Sois CONCIS - maximum 5 phrases au total
 
 CONTEXTE JURIDIQUE STRUCTUREL (Neo4j) :
 {graph_context}
@@ -114,7 +115,7 @@ CONTEXTE TEXTUEL (Recherche sémantique) :
 QUESTION :
 {question}
 
-RÉPONSE (structurée, sans redondance) :
+RÉPONSE (courte et précise) :
 """)
 
 # Chaîne RAG HYBRIDE
@@ -158,11 +159,14 @@ def deduplicate_context(text: str) -> str:
 
 def format_answer(text: str) -> str:
     """Améliore le formatage de la réponse et supprime les redondances"""
-    # Ajouter un saut de ligne après les phrases qui se terminent par un point
-    text = text.replace(". ", ".\n")
+    import re
     
-    # Ajouter un saut de ligne avant les tirets de liste
-    text = text.replace("\n- ", "\n\n- ")
+    # Ajouter un saut de ligne après les phrases (. ! ?)
+    text = re.sub(r'([.!?])\s+', r'\1\n\n', text)
+    
+    # Ajouter des sauts de ligne avant et après les tirets de liste
+    text = re.sub(r'\n-\s+', '\n\n- ', text)
+    text = re.sub(r'-\s+', '- ', text)
     
     # Supprimer les listes dupliquées (ex: même article listé plusieurs fois)
     lines = text.split("\n")
@@ -171,8 +175,8 @@ def format_answer(text: str) -> str:
     for line in lines:
         if line.strip().startswith("-"):
             # Extraire le texte du bullet
-            bullet_text = line.strip()[1:].strip().lower()[:50]
-            if bullet_text not in seen_bullets:
+            bullet_text = line.strip()[1:].strip().lower()[:60]
+            if bullet_text not in seen_bullets and len(line.strip()) > 5:
                 seen_bullets.add(bullet_text)
                 unique_lines.append(line)
         else:
@@ -182,5 +186,8 @@ def format_answer(text: str) -> str:
     # Nettoyer les sauts de ligne multiples
     while "\n\n\n" in text:
         text = text.replace("\n\n\n", "\n\n")
+    
+    # Supprimer les espaces en fin de ligne
+    text = '\n'.join(line.rstrip() for line in text.split('\n'))
     
     return text.strip()

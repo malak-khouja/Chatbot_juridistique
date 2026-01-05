@@ -12,25 +12,17 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 from config import NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD, EMBEDDING_MODEL
 
-# -----------------------------
 # Chemins
-# -----------------------------
-<<<<<<< HEAD
-PDF_DIR = "app/data/pdfs"
-CHROMA_DIR = "app/data/chroma"
-CHUNKS_DIR = "app/data/chunks"
-=======
 PDF_DIR = "../data/pdfs"
 CHROMA_DIR = "../data/chroma"
 CHUNKS_DIR = "../data/chunks"
->>>>>>> 0733342 (correction code graph_rag)
 
 os.makedirs(CHROMA_DIR, exist_ok=True)
 os.makedirs(CHUNKS_DIR, exist_ok=True)
 
-# -----------------------------
+
 # Nettoyage simple du texte
-# -----------------------------
+
 def clean_text(text: str) -> str:
     # 1. Supprimer retours à la ligne inutiles et espaces multiples
     text = re.sub(r"\n+", "\n", text)
@@ -164,33 +156,21 @@ import os
 from langchain_neo4j import Neo4jGraph
 from langchain_core.documents import Document
 
-# -----------------------------
 # Connexion Neo4j
-# -----------------------------
+
 graph = Neo4jGraph(
-<<<<<<< HEAD
-    url="neo4j+s://b8f76dbc.databases.neo4j.io",
-    username="neo4j",
-    password="N_AQqAk0Lp4pHzsttUOXcVnveCIcOXPsTJLFgCNKB40",
+    url=NEO4J_URI,
+    username=NEO4J_USER,
+    password=NEO4J_PASSWORD,
     timeout=60
 )
 
-# ⚠️ Vider le graphe avant test
+# Vider le graphe avant test
 graph.query("MATCH (n) DETACH DELETE n")
-print("Graphe Neo4j vidé pour test")
-=======
-        url=NEO4J_URI,
-        username=NEO4J_USER,
-        password=NEO4J_PASSWORD,
-    )
 
-# ⚠️ Vider le graphe avant test
-graph.query("MATCH (n) DETACH DELETE n")
->>>>>>> 0733342 (correction code graph_rag)
 
-# -----------------------------
 # Regex pour extraire la structure
-# -----------------------------
+
 ARTICLE_RE = re.compile(r"(Article\s+\d+)", re.IGNORECASE)
 CHAPITRE_RE = re.compile(r"(Chapitre\s+[IVXLC]+)", re.IGNORECASE)
 TITRE_RE = re.compile(r"(Titre\s+[IVXLC]+)", re.IGNORECASE)
@@ -237,14 +217,6 @@ def build_graph_from_chunks(chunks):
         add_to_graph(titres, chapitres, articles, doc.page_content)
         if i % 100 == 0:
             print(f"✔ {i} chunks traités")
-<<<<<<< HEAD
-# -----------------------------
-# Peupler le graphe avec les documents
-# -----------------------------
-print(" Construction du graphe Neo4j...")
-build_graph_from_chunks(all_docs)
-print(" Graphe Neo4j construit avec succès")
-=======
             
 # Charger les chunks existants
 all_docs = []
@@ -266,4 +238,3 @@ for pdf_folder in os.listdir(CHUNKS_DIR):
 # Construire le graphe
 build_graph_from_chunks(all_docs)
 print("Graphe créé dans Neo4j à partir des chunks")
->>>>>>> 0733342 (correction code graph_rag)
