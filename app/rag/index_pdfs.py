@@ -12,9 +12,9 @@ from langchain_community.vectorstores import Chroma
 # -----------------------------
 # Chemins
 # -----------------------------
-PDF_DIR = "data/pdfs"
-CHROMA_DIR = "data/chroma"
-CHUNKS_DIR = "data/chunks"
+PDF_DIR = "app/data/pdfs"
+CHROMA_DIR = "app/data/chroma"
+CHUNKS_DIR = "app/data/chunks"
 
 os.makedirs(CHROMA_DIR, exist_ok=True)
 os.makedirs(CHUNKS_DIR, exist_ok=True)
@@ -165,14 +165,15 @@ CHUNKS_DIR = "data/chunks"
 # Connexion Neo4j
 # -----------------------------
 graph = Neo4jGraph(
-    url="neo4j://127.0.0.1:7687",
+    url="neo4j+s://b8f76dbc.databases.neo4j.io",
     username="neo4j",
-    password="bd_juridistique"
+    password="N_AQqAk0Lp4pHzsttUOXcVnveCIcOXPsTJLFgCNKB40",
+    timeout=60
 )
 
 # ⚠️ Vider le graphe avant test
 graph.query("MATCH (n) DETACH DELETE n")
-print("✔ Graphe Neo4j vidé pour test")
+print("Graphe Neo4j vidé pour test")
 
 # -----------------------------
 # Regex pour extraire la structure
@@ -223,3 +224,9 @@ def build_graph_from_chunks(chunks):
         add_to_graph(titres, chapitres, articles, doc.page_content)
         if i % 100 == 0:
             print(f"✔ {i} chunks traités")
+# -----------------------------
+# Peupler le graphe avec les documents
+# -----------------------------
+print(" Construction du graphe Neo4j...")
+build_graph_from_chunks(all_docs)
+print(" Graphe Neo4j construit avec succès")
