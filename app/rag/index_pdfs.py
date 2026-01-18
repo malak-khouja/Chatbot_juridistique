@@ -1,6 +1,5 @@
-#---------------------------------------------------------------------
+
 # Fichier à exécuter une seule fois ou si tu ajoutes/modifies des PDF
-#---------------------------------------------------------------------
 
 import os
 import sys
@@ -72,9 +71,9 @@ def clean_text(text: str) -> str:
     
     return text.strip()
 
-# -----------------------------
+
 # Chunking adaptatif
-# -----------------------------
+
 def get_chunk_params(num_pages):
     if num_pages < 10:
         return 600, 100
@@ -83,16 +82,16 @@ def get_chunk_params(num_pages):
     else:
         return 1500, 200
 
-# -----------------------------
+
 # Embeddings
-# -----------------------------
+
 embeddings = HuggingFaceEmbeddings(
     model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 )
 
-# -----------------------------
+
 # Extraction, nettoyage et chunking
-# -----------------------------
+
 all_docs = []
 
 for pdf in os.listdir(PDF_DIR):
@@ -140,9 +139,9 @@ for pdf in os.listdir(PDF_DIR):
 
     print(f"✔ {len(chunks)} chunks sauvegardés pour {pdf}")
 
-# -----------------------------
+
 # Indexation avec Chroma
-# -----------------------------
+
 vectordb = Chroma.from_documents(
     documents=all_docs,
     embedding=embeddings,
@@ -181,9 +180,8 @@ def extract_entities(text):
     articles = set(ARTICLE_RE.findall(text))
     return titres, chapitres, articles
 
-# -----------------------------
 # Ajouter les entités et relations dans Neo4j
-# -----------------------------
+
 def add_to_graph(titres, chapitres, articles, text_content):
     for t in titres:
         graph.query("MERGE (:Titre {name:$n})", {"n": t})
@@ -208,9 +206,8 @@ def add_to_graph(titres, chapitres, articles, text_content):
                 MERGE (a)-[:FAIT_PARTIE_DE]->(c)
             """, {"a": a, "c": c})
 
-# -----------------------------
 # Construction du graphe à partir des chunks existants
-# -----------------------------
+
 def build_graph_from_chunks(chunks):
     for i, doc in enumerate(chunks):
         titres, chapitres, articles = extract_entities(doc.page_content)

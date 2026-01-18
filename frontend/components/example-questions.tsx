@@ -16,7 +16,7 @@ const exampleQuestions = [
   },
   {
     icon: FileText,
-    question: "Comment rédiger un contrat de travail ?",
+    question: "Quelles sont les conditions essentielles d'un contrat ?",
     category: "Contrats",
   },
   {
