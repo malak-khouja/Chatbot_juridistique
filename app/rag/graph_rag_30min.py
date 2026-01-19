@@ -56,7 +56,7 @@ class HybridGraphExtractor:
         self.processed_chunks = set()
         self.load_progress()
         
-        # Compile regex patterns for Tunisian/French legal documents
+        # Compile regex patterns for Tunisian legal documents
         self._compile_patterns()
     
     def _compile_patterns(self):

@@ -22,8 +22,7 @@ from app.config import (
 CHUNKS_DIR = "app/data/chunks"
 PROGRESS_FILE = "progress.txt"
 
-# Utils progression
-
+# progression
 
 def load_progress():
     if os.path.exists(PROGRESS_FILE):
@@ -35,10 +34,7 @@ def save_progress(i):
     with open(PROGRESS_FILE, "w") as f:
         f.write(str(i))
 
-
-
 # Charger les chunks
-
 
 all_docs = []
 
@@ -76,12 +72,7 @@ graph = Neo4jGraph(
     timeout=60
 )
 
-
-# graph.query("MATCH 👎 DETACH DELETE n")
-
-
-# LLM + Transformer
-
+#LLM pour transformer les chunks en graphe
 
 llm_graph = Ollama(model=LLM_MODEL)
 
@@ -209,3 +200,121 @@ while True:
 
     answer = graph_qa.run(q)
     print(" Réponse :", answer)
+    
+    
+# # contexte STRUCTUREL depuis Neo4j
+# def get_graph_context(question: str, limit: int = 5) -> str:
+#     """
+#     Retrieve structured legal context from Neo4j graph built with LLMGraphTransformer.
+    
+#     Supports multiple entity types:
+#     - Articles, Chapitres, Titres
+#     - Loi, Code, Concept
+#     - Personne, Entreprise, Organisation
+#     - Droit, Obligation, Action
+    
+#     Args:
+#         question: User's question
+#         limit: Maximum number of results to return
+    
+#     Returns:
+#         Formatted context string with entities and relationships
+#     """
+#     if graph is None:
+#         return ""
+    
+#     try:
+#         # Extract keywords (length > 3 to filter common words)
+#         keywords = [w.lower() for w in question.split() if len(w) > 3]
+        
+#         if not keywords:
+#             return ""
+        
+#         # 1. MULTI-ENTITY SEARCH: Find all relevant legal entities
+#         cypher_entities = """
+#         MATCH (n)
+#         WHERE labels(n)[0] IN ['Article', 'Chapitre', 'Titre', 'Loi', 'Code', 
+#                                'Concept', 'Droit', 'Obligation', 'Action',
+#                                'Personne', 'Entreprise', 'Organisation']
+#         AND (n.text IS NOT NULL OR n.id IS NOT NULL)
+#         AND any(k IN $keys WHERE 
+#             toLower(coalesce(n.text, '')) CONTAINS k OR 
+#             toLower(coalesce(n.id, '')) CONTAINS k)
+#         RETURN labels(n)[0] AS entity_type, 
+#                coalesce(n.text, n.id) AS entity_text,
+#                n.chunk_id AS chunk_id
+#         LIMIT $limit
+#         """
+        
+#         # 2. RELATIONSHIP SEARCH: Find related entities
+#         cypher_relationships = """
+#         MATCH (n)-[r]->(m)
+#         WHERE (any(k IN $keys WHERE 
+#                 toLower(coalesce(n.text, '')) CONTAINS k OR 
+#                 toLower(coalesce(n.id, '')) CONTAINS k))
+#         AND labels(n)[0] IN ['Article', 'Chapitre', 'Titre', 'Loi', 'Code', 
+#                              'Concept', 'Droit', 'Obligation']
+#         RETURN labels(n)[0] AS source_type,
+#                coalesce(n.text, n.id) AS source_text,
+#                type(r) AS rel_type,
+#                labels(m)[0] AS target_type,
+#                coalesce(m.text, m.id) AS target_text
+#         LIMIT $limit
+#         """
+        
+#         # Execute queries
+#         entities = []
+#         relationships = []
+        
+#         try:
+#             entities = graph.query(cypher_entities, {"keys": keywords, "limit": limit})
+#         except Exception as e:
+#             logging.debug(f"Entity search failed: {e}")
+        
+#         try:
+#             relationships = graph.query(cypher_relationships, {"keys": keywords, "limit": limit})
+#         except Exception as e:
+#             logging.debug(f"Relationship search failed: {e}")
+        
+#         # Format results
+#         context_parts = []
+        
+#         # Format entities
+#         for entity in entities:
+#             entity_type = entity.get("entity_type", "Entity")
+#             entity_text = entity.get("entity_text", "")
+            
+#             if entity_text:
+#                 # Add emoji based on type
+#                 emoji = {
+#                     "Article": "📋",
+#                     "Chapitre": "📖",
+#                     "Titre": "📕",
+#                     "Loi": "⚖️",
+#                     "Code": "📚",
+#                     "Concept": "💡",
+#                     "Droit": "✅",
+#                     "Obligation": "⚠️",
+#                     "Action": "🔨"
+#                 }.get(entity_type, "🔹")
+                
+#                 context_parts.append(f"{emoji} [{entity_type}] {entity_text[:200]}")
+        
+#         # Format relationships
+#         for rel in relationships:
+#             source_type = rel.get("source_type", "")
+#             source_text = rel.get("source_text", "")[:80]
+#             rel_type = rel.get("rel_type", "LIEN")
+#             target_type = rel.get("target_type", "")
+#             target_text = rel.get("target_text", "")[:80]
+            
+#             if source_text and target_text:
+#                 context_parts.append(
+#                     f"🔗 [{source_type}] {source_text} --{rel_type}--> [{target_type}] {target_text}"
+#                 )
+        
+#         return "\n\n".join(context_parts[:10])  # Limit to 10 results
+        
+#     except Exception as e:
+#         logging.warning(f"Graph context retrieval failed: {e}")
+#         return ""

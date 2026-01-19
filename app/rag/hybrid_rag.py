@@ -1,9 +1,12 @@
 import os
+import re
+import logging
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain_ollama import OllamaLLM
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_neo4j import Neo4jGraph
+from langchain_community.chains.graph_qa.cypher import GraphCypherQAChain
 from app.config import NEO4J_URI as CFG_NEO4J_URI, NEO4J_USER as CFG_NEO4J_USER, NEO4J_PASSWORD as CFG_NEO4J_PASSWORD, EMBEDDING_MODEL, LLM_MODEL
 
 
@@ -45,45 +48,59 @@ llm = OllamaLLM(
     base_url="http://127.0.0.1:11434"
 )
 
+# Cypher Prompt Template for LLM-based query generation
+CYPHER_PROMPT = PromptTemplate(
+    input_variables=["schema", "question"],
+    template="""
+You are an expert Neo4j Cypher query generator for a Tunisian legal knowledge graph.
 
-# contexte STRUCTUREL depuis Neo4j
-def get_graph_context(question, limit=5):
-    if graph is None:
-        return ""
-    
-    # Extraire mots-clés pertinents (filtrer mots courts)
-    keywords = [w.lower() for w in question.split() if len(w) > 3]
-    
-    cypher = """
-    MATCH (a:Article)
-    WHERE any(k IN $keys WHERE toLower(a.name) CONTAINS k OR toLower(a.content) CONTAINS k)
-    OPTIONAL MATCH (a)-[:FAIT_PARTIE_DE]->(c:Chapitre)
-    OPTIONAL MATCH (c)-[:FAIT_PARTIE_DE]->(t:Titre)
-    RETURN a.name AS article,
-           a.content AS content,
-           c.name AS chapitre,
-           t.name AS titre
-    LIMIT $limit
-    """
+Graph Schema:
+{schema}
 
+Rules:
+- Output ONLY a valid Cypher query
+- DO NOT use ``` or language tags
+- DO NOT add explanations or comments
+- The query MUST start with MATCH, CALL, or RETURN
+- Focus on finding Articles, Concepts, and their relationships
+- Return results that directly answer the question
+- Limit results to 5 nodes maximum
+
+Question:
+{question}
+
+Cypher Query:
+"""
+)
+
+# Initialize GraphCypherQAChain for dynamic context retrieval
+if graph is not None:
     try:
-        results = graph.query(
-            cypher,
-            {"keys": keywords, "limit": limit}
+        graph_qa_chain = GraphCypherQAChain.from_llm(
+            llm=llm,
+            graph=graph,
+            cypher_prompt=CYPHER_PROMPT,
+            verbose=False,
+            allow_dangerous_requests=True
         )
-    except Exception as exc:
-        print(f"[WARN] Requête Neo4j échouée ({exc}); contexte graphe ignoré.")
-        return ""
+    except Exception as e:
+        logging.warning(f"Failed to initialize GraphCypherQAChain: {e}")
+        graph_qa_chain = None
+else:
+    graph_qa_chain = None
 
-    context = ""
-    for r in results:
-        context += f"""
-        {r.get("titre","")}
-        {r.get("chapitre","")}
-        {r["article"]} :
-        {r["content"]}
-        """
-    return context.strip()
+
+def get_graph_context(question: str) -> str:
+    if graph is None or graph_qa_chain is None:
+        return ""
+    
+    try:
+        # Generate and execute Cypher query using LLM
+        return graph_qa_chain.run(question)
+        
+    except Exception as e:
+        logging.warning(f"Graph context retrieval failed: {e}")
+        return ""
 
 # Prompt HYBRIDE
 prompt = ChatPromptTemplate.from_template("""
@@ -117,31 +134,6 @@ QUESTION :
 
 RÉPONSE (courte et précise) :
 """)
-
-# Chaîne RAG HYBRIDE
-def hybrid_rag_answer(question: str) -> str:
-    # Contexte vectoriel
-    docs = retriever.invoke(question)
-    vector_context = deduplicate_context("\n\n".join(d.page_content for d in docs))
-
-    # Contexte graphe
-    graph_context = get_graph_context(question)
-
-    # Prompt final
-    formatted_prompt = prompt.format(
-        vector_context=vector_context,
-        graph_context=graph_context,
-        question=question
-    )
-
-    # Appel LLM
-    answer = llm.invoke(formatted_prompt)
-    
-    # Post-traitement : améliorer le formatage et supprimer les redondances
-    answer = format_answer(answer)
-    
-    return answer
-
 
 def deduplicate_context(text: str) -> str:
     """Supprime les chunks dupliqués du contexte"""
@@ -191,3 +183,27 @@ def format_answer(text: str) -> str:
     text = '\n'.join(line.rstrip() for line in text.split('\n'))
     
     return text.strip()
+
+# Chaîne RAG HYBRIDE
+def hybrid_rag_answer(question: str) -> str:
+    # Contexte vectoriel
+    docs = retriever.invoke(question)
+    vector_context = deduplicate_context("\n\n".join(d.page_content for d in docs))
+
+    # Contexte graphe
+    graph_context = get_graph_context(question)
+
+    # Prompt final
+    formatted_prompt = prompt.format(
+        vector_context=vector_context,
+        graph_context=graph_context,
+        question=question
+    )
+
+    # Appel LLM
+    answer = llm.invoke(formatted_prompt)
+    
+    # Post-traitement : améliorer le formatage et supprimer les redondances
+    answer = format_answer(answer)
+    
+    return answer
